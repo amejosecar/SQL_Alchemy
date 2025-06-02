@@ -1,3 +1,5 @@
+#connection.py
+import os
 import environ
 from sqlalchemy import create_engine, text
 
@@ -13,35 +15,40 @@ engine = create_engine(db_url, echo=False, future=True)
 def get_engine():
     return engine
 
-def ejecutor_sql(codigo_sql):
+def crear_bd():
+    """
+    Crea la base de datos. En SQLite, el archivo se genera al establecer la primera conexión.
+    """
     try:
-        with engine.begin() as connection:
-            connection.execute(text(codigo_sql))
-        print("✅ Ejecución correcta de SQL")
-        return True
+        # Conexión trivial para forzar la creación de la base de datos
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
+        print("La base de datos se ha creado (o ya existe).")
     except Exception as e:
-        print(f"❌ Error de SQLite: {e}")
-        return False
+        print(f"Error al crear la base de datos: {e}")
 
-def leer_tabla(tabla):
-    import pandas as pd
-    engine = get_engine()
-    try:
-        with engine.connect() as connection:
-            query = text(f"SELECT * FROM {tabla}")
-            df = pd.read_sql(query, connection)
-        return df
-    except Exception as e:
-        print(f"Error de conexión: {e}")
-        return None
+def validar_conexion():
+    """
+    Valida la conexión comprobando la existencia del archivo SQLite.
+    Si existe, se imprime: "OK: El archivo de la BD existe."
+    De lo contrario, se muestra: "Error: El archivo BD_SiGesBi.db no existe."
+    """
+    # Extraer la ruta del archivo desde db_url (eliminando el prefijo "sqlite:///")
+    prefix = "sqlite:///"
+    if db_url.startswith(prefix):
+        file_path = db_url[len(prefix):]
+    else:
+        file_path = db_url
+    
+    if os.path.exists(file_path):
+        print("OK: El archivo de la BD existe.")
+    else:
+        print(f"Error: El archivo {os.path.basename(file_path)} no existe.")
 
-def validar_conexion_bd():
-    engine = get_engine()
-    try:
-        with engine.connect() as connection:
-            connection.execute(text("SELECT 1"))
-        print("✅ Conexión a la base de datos: OK")
-    except Exception as e:
-        print(f"❌ Error de conexión a la base de datos: {e}")
-    finally:
-        print("🔗 Conexión cerrada")
+if __name__ == "__main__":
+    # Primero validamos (para saber si el archivo existe o no)
+    validar_conexion()
+    # Creamos la base de datos (esto forzará la creación del archivo si no existe)
+    crear_bd()
+    # Validamos de nuevo para comprobar que el archivo se ha generado
+    validar_conexion()
