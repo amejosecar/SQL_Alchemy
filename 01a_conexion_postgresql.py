@@ -23,7 +23,7 @@ engine = create_engine(db_url)
 # Si nos lo dan por partes, podemos generarlo utilizando variables para cada una de esas partes
 '''
 db_management_sys = "postgresql"
-db_name = "postgres"
+db_name = "postgres",venv\Script\
 db_user = "postgres"
 # Esto puede variar según la configuración de tu proveedor
 db_password = "Qzd0MtdWrULeulfQ"
