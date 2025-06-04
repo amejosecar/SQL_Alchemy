@@ -1,1 +1,4 @@
 hola
+
+git config --global user.name amejosecar
+git config --global user.email amejosecar@htmail.com
